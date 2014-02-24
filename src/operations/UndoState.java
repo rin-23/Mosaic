@@ -6,8 +6,6 @@
 
 package operations;
 
-import avltree.AVLTree;
-import java.io.Serializable;
 import java.util.ArrayList;
 import shapes.Stroke;
 
@@ -15,9 +13,7 @@ import shapes.Stroke;
  *
  * @author rinatabdrashitov
  */
-public class UndoState implements Serializable{
-    
-    public AVLTree clonePointsTree = null;
+public class UndoState {
         
     public ArrayList<Stroke> boundaryStrokes = null;
     public ArrayList<Stroke> flexibleStrokes = null;

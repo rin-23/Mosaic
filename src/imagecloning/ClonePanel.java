@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import operations.Grow;
 import operations.ScreenImage;
+import operations.UndoManager;
 import operations.Utilities;
 import shapes.Brush;
 import shapes.CPoint;
@@ -194,6 +195,7 @@ public class ClonePanel extends JPanel {
     }
     
     public void finish_stroke(Point p) {
+        UndoManager.saveState();
         stroke.finishPoint(p, Constants.clonePointsTree);
         boundaryStrokes.add(stroke);
         ArrayList<Stroke> singleStroke = new ArrayList<Stroke>();
@@ -221,7 +223,7 @@ public class ClonePanel extends JPanel {
     }
     
     public void finish_color(Point p) {
-        
+             
         colorStroke.finishPoint(p, null);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(colorStroke.getPoints(),
@@ -322,6 +324,7 @@ public class ClonePanel extends JPanel {
     } 
    
     public void finish_photoshopBrush(Point p){
+        UndoManager.saveState();
         Point dist = new Point ();
         dist.x = p.x-photoshopStartBrushing.x;
         dist.y = p.y-photoshopStartBrushing.y;
@@ -378,6 +381,7 @@ public class ClonePanel extends JPanel {
     }
     
     public void finish_guide(Point p) {
+        UndoManager.saveState();
         guidedStroke.finishPoint(p, null);
             
         // Save the current state before regrowth
@@ -582,7 +586,7 @@ public class ClonePanel extends JPanel {
     }
     
     public void finish_erase(Point p) {
-        
+        UndoManager.saveState();
         eraseStroke.finishPoint(p, null);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(eraseStroke.getPoints(),
@@ -593,6 +597,7 @@ public class ClonePanel extends JPanel {
         // This is to keep track of how many
         // newly drawn guided strokes are erased
         ArrayList<Stroke> removedNewFStrokes = null;
+        
             
         if (IDs.isEmpty()) {
             IDs = Utilities.findStroke(p, "Clone Panel");

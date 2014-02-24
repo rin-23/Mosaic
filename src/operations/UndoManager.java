@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import shapes.Stroke;
 import constants.Constants;
 import imagecloning.ClonePanel;
+import java.awt.Point;
+import shapes.CPoint;
+
 /**
  *
  * @author rinatabdrashitov
@@ -23,23 +26,35 @@ public class UndoManager {
         { 
             if (undoQueue.size() == 5) {
                 undoQueue.poll();
-            }
-            
+            }            
             UndoState state = new UndoState();
-            state.boundaryStrokes = ClonePanel.boundaryStrokes;
-            state.flexibleStrokes = ClonePanel.flexibleStrokes;
-            state.clonePointsTree = Constants.clonePointsTree;
-            
+            state.boundaryStrokes = (ArrayList<Stroke>) ClonePanel.boundaryStrokes.clone();
+            state.flexibleStrokes = (ArrayList<Stroke>) ClonePanel.flexibleStrokes.clone();                       
             undoQueue.add(state);            
         }
         
         public static void undo() 
         {
             if (!undoQueue.isEmpty()) {
-                UndoState state = undoQueue.pollLast();
-                Constants.clonePointsTree = state.clonePointsTree;
+                
+                UndoState state = undoQueue.pollLast();                
                 ClonePanel.boundaryStrokes = state.boundaryStrokes;
                 ClonePanel.flexibleStrokes = state.flexibleStrokes;
-            }
-        }    
+                
+                Constants.clonePointsTree = new AVLTree();
+                for (Stroke s : ClonePanel.boundaryStrokes) {
+                    for (Point p : s.getPoints()) {
+                        Constants.clonePointsTree.probe(new CPoint(p.x, p.y,
+                                s.getID(), s.getIsBoundary()));
+                    }
+                }
+
+                for (Stroke s : ClonePanel.flexibleStrokes) {
+                    for (Point p : s.getPoints()) {
+                        Constants.clonePointsTree.probe(new CPoint(p.x, p.y,
+                                s.getID(), s.getIsBoundary()));
+                    }
+                }
+        }
+    }
 }
