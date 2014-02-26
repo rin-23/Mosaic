@@ -466,7 +466,7 @@ public class ClonePanel extends JPanel {
         MainFrame.drawPanel.repaint();
     }
     
-    public void again_guide() {
+    synchronized public void again_guide() {
         
         oldStrokeNumber = oldStrokeNumber - Grow.notGrown;
         
@@ -522,7 +522,7 @@ public class ClonePanel extends JPanel {
         guidedStrokes.clear();
           oldStrokeNumber = 0;  
            
-        for (int i = 0; i <= hiddenGuideStroke.getPoints().size(); i += frequency) {
+        for (int i = 0; i < hiddenGuideStroke.getPoints().size(); i += frequency) {
             // Randomely selected a stroke
             int index = (int)Math.round(Math.random() * (copiedStrokes.size() - 1));            
             Stroke centroidS = copiedStrokes.get(index);
