@@ -297,14 +297,14 @@ public class ToolBox extends MouseAdapter {
         gbc.gridx = 0;
         gbc.gridwidth = 6;
 
-        JSlider frequencySlider = new JSlider(JSlider.HORIZONTAL, 1, 20, 5);
-        frequencySlider.setMajorTickSpacing(3);
-        frequencySlider.setMinorTickSpacing(1);
-        frequencySlider.setPaintTicks(true);
-        frequencySlider.setPaintLabels(true);
+        JSlider frequencySlider = new JSlider(JSlider.HORIZONTAL, 10, 100, 50);
+//        frequencySlider.setMajorTickSpacing(10);
+//        frequencySlider.setMinorTickSpacing(1);
+//        frequencySlider.setPaintTicks(true);
+//        frequencySlider.setPaintLabels(true);
         frequencySlider.setAlignmentY(Component.CENTER_ALIGNMENT);
         frequencySlider.setBackground(Color.white);
-        frequencySlider.setBorder(BorderFactory.createTitledBorder("Number of Strokes"));
+        frequencySlider.setBorder(BorderFactory.createTitledBorder("Guided strokes overlap"));
         frequencySlider.setName("FREQUENCY");
         frequencySlider.setFocusable(true);
         p2.add(frequencySlider, gbc);
@@ -616,7 +616,7 @@ public class ToolBox extends MouseAdapter {
 								JSlider source = (JSlider)e.getSource();
 								if (!source.getValueIsAdjusting()) {
 									int number = (int)source.getValue();
-									ClonePanel.strokeNumber = number;
+									ClonePanel.guidedOverlapFactor = number;
 									if (ClonePanel.hiddenGuideStroke != null
 											&& ClonePanel.selectedStrokesClone != null) {
 										MainFrame.clonePanel.again_guide();

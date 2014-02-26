@@ -76,8 +76,8 @@ public class Toolbar extends JPanel {
         this.add(secondSeparator);
         
         // Slider for guided stroke frequency
-        JSlider frequencySlider = new JSlider(JSlider.HORIZONTAL, 1, 20, 5);
-	frequencySlider.setMajorTickSpacing(3);
+        JSlider frequencySlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 5);
+	frequencySlider.setMajorTickSpacing(1);
 	frequencySlider.setMinorTickSpacing(1);
 	frequencySlider.setPaintTicks(true);
 	frequencySlider.setPaintLabels(true);
@@ -87,10 +87,10 @@ public class Toolbar extends JPanel {
         frequencySlider.setName("FREQUENCY");
         frequencySlider.setFocusable(true);
         frequencySlider.addKeyListener(keyDispatcher);
-	this.add(frequencySlider);
-        Component thirdSeparator = Box.createRigidArea(new Dimension(10, 0));
-        thirdSeparator.setName("SEPARATOR");
-        this.add(thirdSeparator);
+//	this.add(frequencySlider);
+//        Component thirdSeparator = Box.createRigidArea(new Dimension(10, 0));
+//        thirdSeparator.setName("SEPARATOR");
+//        this.add(thirdSeparator);
         
         // Slider for smoothness
 	JSlider smoothSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 20);

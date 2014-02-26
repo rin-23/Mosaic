@@ -1,9 +1,10 @@
 package imagecloning;
 
 import MenuToolbar.ColorChooser;
-import MenuToolbar.ToolBox;
+
 import constants.Constants;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -30,7 +31,8 @@ public class ClonePanel extends JPanel {
     public static Stroke guidedStroke = null;
     public static Stroke hiddenGuideStroke = null;
     public static ArrayList<Stroke> selectedStrokesClone = null;
-    public static int strokeNumber;
+    private static int strokeNumber;
+    public static int guidedOverlapFactor = 50; //spacing factor between strokes along guided line
     public static int oldStrokeNumber;
     
     public static Stroke eraseStroke = null;
@@ -66,8 +68,7 @@ public class ClonePanel extends JPanel {
         boundaryStrokes = new ArrayList<Stroke>();
         flexibleStrokes = new ArrayList<Stroke>();
         guidedStrokes = new ArrayList<Stroke>();
-        
-        strokeNumber = 5;
+                
         imageAlpha = 0.5f;
         
         MouseDispatcher mouseDispatcher = new MouseDispatcher();
@@ -387,43 +388,40 @@ public class ClonePanel extends JPanel {
         // Save the current state before regrowth
         selectedStrokesClone = DrawPanel.selectedStrokes;
         flexibleStrokesClone = flexibleStrokes;
-
-        // Set how far apart each stroke is to each other
-        int frequency;
-        if (strokeNumber == 1) {
-            frequency  = guidedStroke.getPoints().size() + 1;
-        } else {
-            frequency = guidedStroke.getPoints().size()
-                / (strokeNumber - 1);
+        
+        //Convert all selected strokes to clone space
+        //Calculate average size of strokes selected
+        ArrayList<Stroke> copiedStrokes = new ArrayList<>();
+        double averageDiameter = 0;
+        for (Stroke s: DrawPanel.selectedStrokes) {
+            Stroke temps = new Stroke(s.getPoints(), false, -1,
+                s.getPolygonColor(), s.getStrokeType());
+            copiedStrokes.add(temps);
+            Dimension dim = temps.getDimension();
+            double diameter = Math.sqrt(Math.pow(dim.width, 2) + Math.pow(dim.height, 2));            
+            averageDiameter += diameter;
         }
-
+        averageDiameter /= copiedStrokes.size();
+        
+        //Set how far apart each stroke is to each other
+        double factor = guidedOverlapFactor/100.0;
+        int frequency = (int) (averageDiameter * factor);       
+        oldStrokeNumber = 0;
         guidedStrokes.clear();
-
-        for (int i = 0; i <= guidedStroke.getPoints().size();
-                i = i + frequency) {
-            
+               
+        for (int i = 0; i < guidedStroke.getPoints().size(); i += frequency) 
+        {           
             // Randomely selected a stroke
-            int index = (int)Math.round(Math.random() *
-                    DrawPanel.selectedStrokes.size());
-            if (index == DrawPanel.selectedStrokes.size()) {
-                index--;
-            }
-            Stroke s = DrawPanel.selectedStrokes.get(index);
-            // Stroke centroidS is only created to
-            // calculate the centroid of Stroke s.
-            Stroke centroidS = new Stroke(s.getPoints(), false, -1,
-                    s.getPolygonColor(), s.getStrokeType());
+            int index = (int)Math.round(Math.random() * (copiedStrokes.size() - 1));            
+            Stroke centroidS = copiedStrokes.get(index);
             Point centroid = centroidS.getCentroid();
 
-            if (i == guidedStroke.getPoints().size()) {
-                i = guidedStroke.getPoints().size() - 1;
-            }
-            
             Point point = guidedStroke.getPoints().get(i);
             
             // Shift points
-            ArrayList<Point> shiftedP = Utilities.shift(centroidS.getPoints(),
-                    point.x - centroid.x, point.y - centroid.y);
+            ArrayList<Point> shiftedP = Utilities.shift(centroidS.getPoints(), 
+                                                        point.x - centroid.x, 
+                                                        point.y - centroid.y);
             
             // Rotate points
             ArrayList<Point> rotatedP = null;
@@ -443,21 +441,22 @@ public class ClonePanel extends JPanel {
                     rotatedP = Utilities.rotatePoints(shiftedP, cos, -1);
                 }
                 Stroke rotatedS = new Stroke(rotatedP, true, -1,
-                        s.getPolygonColor(), s.getStrokeType());
+                        centroidS.getPolygonColor(), centroidS.getStrokeType());
                 guidedStrokes.add(rotatedS);
             } else {
                 Stroke shiftedS = new Stroke(shiftedP, true, -1,
-                        s.getPolygonColor(), s.getStrokeType());
+                        centroidS.getPolygonColor(), centroidS.getStrokeType());
                 guidedStrokes.add(shiftedS);
             }
+            
+            oldStrokeNumber++;
         } 
         Grow.growStrokes(guidedStrokes, true);
 
         super.repaint();
         hiddenGuideStroke = new Stroke(guidedStroke.getPoints(), false, -1,
                 guidedStroke.getPolygonColor(), guidedStroke.getStrokeType());
-        guidedStroke = null;
-        oldStrokeNumber = strokeNumber;
+        guidedStroke = null;        
         
         DrawPanel.brush = new Brush();
 	DrawPanel.brushes = new ArrayList<Brush>();
@@ -502,36 +501,35 @@ public class ClonePanel extends JPanel {
         }
         flexibleStrokes = flexibleStrokesClone;
         
-        // Set how far apart each stroke is to each other
-        int frequency;
-        if (strokeNumber == 1) {
-            frequency  = hiddenGuideStroke.getPoints().size() + 1;
-        } else {
-            frequency = hiddenGuideStroke.getPoints().size()
-                / (strokeNumber - 1);
+        //Convert all selected strokes to clone space
+        //Calculate average size of strokes selected
+        ArrayList<Stroke> copiedStrokes = new ArrayList<>();
+        double averageDiameter = 0;
+        for (Stroke s: selectedStrokesClone) {
+            Stroke temps = new Stroke(s.getPoints(), false, -1,
+                s.getPolygonColor(), s.getStrokeType());
+            copiedStrokes.add(temps);
+            Dimension dim = temps.getDimension();
+            double diameter = Math.sqrt(Math.pow(dim.width, 2) + Math.pow(dim.height, 2));            
+            averageDiameter += diameter;
         }
+        averageDiameter /= copiedStrokes.size();
+        
+        //Set how far apart each stroke is to each other
+        double factor = guidedOverlapFactor/100.0;
+        int frequency = (int) (averageDiameter * factor);       
 
         guidedStrokes.clear();
-            
-        for (int i = 0; i <= hiddenGuideStroke.getPoints().size();
-                i = i + frequency) {
+          oldStrokeNumber = 0;  
+           
+        for (int i = 0; i <= hiddenGuideStroke.getPoints().size(); i += frequency) {
             // Randomely selected a stroke
-            int index = (int)Math.round(Math.random() *
-                            selectedStrokesClone.size());
-            if (index == selectedStrokesClone.size()) {
-                index--;
-            }
-            Stroke s = selectedStrokesClone.get(index);
-            // Stroke centroidS is only created to
-            // calculate the centroid of Stroke s.
-            Stroke centroidS = new Stroke(s.getPoints(), false, -1,
-                    s.getPolygonColor(), s.getStrokeType());
+            int index = (int)Math.round(Math.random() * (copiedStrokes.size() - 1));            
+            Stroke centroidS = copiedStrokes.get(index);
             Point centroid = centroidS.getCentroid();
-            
-            if (i == hiddenGuideStroke.getPoints().size()) {
-                    i = hiddenGuideStroke.getPoints().size() - 1;
-                }
+
             Point point = hiddenGuideStroke.getPoints().get(i);
+            
             // Shift points
             ArrayList<Point> shiftedP = Utilities.shift(centroidS.getPoints(),
                     point.x - centroid.x, point.y - centroid.y);
@@ -560,12 +558,10 @@ public class ClonePanel extends JPanel {
                         centroidS.getPolygonColor(), centroidS.getStrokeType());
                 guidedStrokes.add(shiftedS);
             }
-
+            oldStrokeNumber++;
         }
 
-        Grow.growStrokes(guidedStrokes, true);
-
-        oldStrokeNumber = strokeNumber;
+        Grow.growStrokes(guidedStrokes, true);       
         
         super.repaint();
 

@@ -11,7 +11,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import operations.Utilities;
 import constants.Constants;
+import java.awt.Dimension;
 import java.awt.Polygon;
+import java.awt.Rectangle;
 
 public class Stroke implements Serializable {
     
@@ -25,10 +27,12 @@ public class Stroke implements Serializable {
     
     /* Growth Attributes */
     private Point centroid;
+    private Dimension dimension;
     private ArrayList<Point> growthVectors;
     private ArrayList<Integer> growthMask;
     private ArrayList<Point> newPoints;
 
+        
     /* Color Attributes */
     private Color polygonColor = null;
     private boolean strokeDone = false;
@@ -140,14 +144,26 @@ public class Stroke implements Serializable {
         // are considered to be flexible and non-boundary
         isBoundary = false;
         
-        // Set Centroid
+        // Set Centroid and Calculate Bounding Box
         centroid = new Point(0, 0);
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+                               
         for (Point p : points) {
             centroid.x += p.x;
             centroid.y += p.y;
+            
+            minX = Math.min(minX, p.x);
+            minY = Math.min(minY, p.y);
+            maxX = Math.max(maxX, p.x);
+            maxY = Math.max(maxY, p.y);           
         }        
         centroid.x = Math.round(centroid.x / (float)points.size());
         centroid.y = Math.round(centroid.y / (float)points.size());
+        
+        dimension = new Dimension(maxX - minX, maxY - minY);        
         
         // Each stroke created has its unique ID
         if (newID >= 0) {
@@ -225,8 +241,11 @@ public class Stroke implements Serializable {
         
         if (paintCentroid) {
             g2D.fill(new Ellipse2D.Double(centroid.x - 1,
-                    centroid.y - 1, 2, 2));
+                    centroid.y - 1, 2, 2));   
+            
         }
+                     
+        
     }
 
     /* - START HERE - GET and SET operations */
@@ -250,6 +269,10 @@ public class Stroke implements Serializable {
     public void setCentroid(int x, int y) {
         this.centroid.x = x;
         this.centroid.y = y;
+    }
+    
+    public Dimension getDimension() {
+        return this.dimension;
     }
     
     public ArrayList<Point> getPoints(){

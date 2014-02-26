@@ -1,2 +1,0 @@
-MenuToolbar.ActionPanel
-MenuToolbar.ToolBox

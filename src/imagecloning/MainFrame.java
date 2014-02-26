@@ -214,12 +214,12 @@ public class MainFrame extends JFrame {
                 public void actionPerformed(ActionEvent ae) {
                     if (file == null & type == null) {
                         Utilities.saveAs();	
-                    } else {
-                        Utilities.save(file, type);
+                    } else { 
+                       Utilities.save(file, type);
                     }
                 }
-            }
-        );
+            } 
+       );
         
         saveAs.addActionListener(
             new ActionListener(){
@@ -518,7 +518,7 @@ public class MainFrame extends JFrame {
                             JSlider source = (JSlider)e.getSource();
                             if (!source.getValueIsAdjusting()) {
                                 int number = (int)source.getValue();
-                                ClonePanel.strokeNumber = number;
+                                ClonePanel.guidedOverlapFactor = number;
                                 if (ClonePanel.hiddenGuideStroke != null
                                         && ClonePanel.selectedStrokesClone != null) {
                                     clonePanel.again_guide();
