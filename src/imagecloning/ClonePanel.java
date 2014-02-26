@@ -235,9 +235,11 @@ public class ClonePanel extends JPanel {
         allStrokes.addAll(boundaryStrokes);
         allStrokes.addAll(flexibleStrokes);
             
+        
+              
         if (IDs.isEmpty()) {
             IDs = Utilities.findStroke(p, "Clone Panel");
-            outerloop:
+            outerloop:           
             for (int i = 0; i < IDs.size(); i++) {
                 for (Stroke s : allStrokes) {
                     if (s.getID() == IDs.get(i)
@@ -248,29 +250,52 @@ public class ClonePanel extends JPanel {
                 }
             }
         } else {
+            ArrayList<Stroke> strokesToColor = new ArrayList<>();
             for (int i = 0; i < IDs.size(); i++) {
                 for (Stroke s : allStrokes) {
-                    if (s.getID() == IDs.get(i)
-                            && s.getStrokeType() == Constants.POLYGON) {
-                        int R = newColor.getRed();
-                        int G = newColor.getGreen();
-                        int B = newColor.getBlue();
-                        int newR = R + i * Constants.COLOR_GRADIENT;
-                        int newG = G + i * Constants.COLOR_GRADIENT;
-                        int newB = B + i * Constants.COLOR_GRADIENT;
-                        if (newR < 0) newR = 0;
-                        if (newG < 0) newG = 0;
-                        if (newB < 0) newB = 0;
-                        if (newR > 255) newR = 255;
-                        if (newG > 255) newG = 255;
-                        if (newB > 255) newB = 255;
-                        Color gColor = new Color(newR/255f, newG/255f,
-                                newB/255f, newColor.getAlpha()/255f);
-                        s.setPolygonColor(gColor);
+                    if (s.getID() == IDs.get(i) && s.getStrokeType() == Constants.POLYGON) {
+                        strokesToColor.add(s);
                     }
                 }
+            }     
+            
+            int R = newColor.getRed();
+            int G = newColor.getGreen();
+            int B = newColor.getBlue();
+            double colorStep;
+            if (Constants.COLOR_GRADIENT < 0) {
+                int maxColor = Math.max(Math.max(R, G), B);
+                int difference = maxColor;
+                colorStep =  difference / strokesToColor.size(); 
+            } else if (Constants.COLOR_GRADIENT == 0) {
+                colorStep = 0;
+            } else {
+                int minColor = Math.min(Math.min(R, G), B);
+                int difference = 255 - minColor;
+                colorStep = difference / strokesToColor.size(); 
+            }
+            colorStep *= Constants.COLOR_GRADIENT/100.0;
+            int stepIndex = 0;
+            for (Stroke s : strokesToColor) {                
+                int newR = (int) Math.round(R + stepIndex * colorStep);
+                int newG = (int) Math.round(G + stepIndex * colorStep);
+                int newB = (int) Math.round(B + stepIndex * colorStep);
+                
+                if (newR < 0) newR = 0;                
+                if (newG < 0) newG = 0;                
+                if (newB < 0) newB = 0;
+                
+                if (newR > 255) newR = 255;                
+                if (newG > 255) newG = 255;                
+                if (newB > 255) newB = 255;
+                
+                Color gColor = new Color(newR / 255f, newG / 255f,
+                        newB / 255f, newColor.getAlpha() / 255f);
+                s.setPolygonColor(gColor);
+                stepIndex ++;
             }
         }
+
         colorStroke = null;
         super.repaint();
     }

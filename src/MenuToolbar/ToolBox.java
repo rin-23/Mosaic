@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -188,10 +189,10 @@ public class ToolBox extends MouseAdapter {
 			
         // Slider for smoothness
         JSlider smoothSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, 20);
-        smoothSlider.setMajorTickSpacing(20);
-        smoothSlider.setMinorTickSpacing(10);
-        smoothSlider.setPaintTicks(true);
-        smoothSlider.setPaintLabels(true);
+//        smoothSlider.setMajorTickSpacing(20);
+//        smoothSlider.setMinorTickSpacing(10);
+//        smoothSlider.setPaintTicks(true);
+//        smoothSlider.setPaintLabels(true);
         smoothSlider.setAlignmentY(Component.CENTER_ALIGNMENT);
         smoothSlider.setBackground(Color.white);
         smoothSlider.setBorder(BorderFactory.createTitledBorder("Stroke Smoothness"));
@@ -199,7 +200,26 @@ public class ToolBox extends MouseAdapter {
         smoothSlider.setFocusable(true);
 	p1.add(smoothSlider, gbc);
         
-        gbc.gridwidth = 6;
+         Component middleSeparator2 = Box.createRigidArea(new Dimension(0, 5)); 
+        p1.add(middleSeparator2, gbc);
+	
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 7;
+
+        JSlider thresholdSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 5);
+        thresholdSlider.setMajorTickSpacing(1);
+        thresholdSlider.setMinorTickSpacing(1);
+//        thresholdSlider.setPaintTicks(true);
+//        thresholdSlider.setPaintLabels(true);
+        thresholdSlider.setAlignmentY(Component.CENTER_ALIGNMENT);
+        thresholdSlider.setBackground(Color.white);
+        thresholdSlider.setBorder(BorderFactory.createTitledBorder("Gap between Strokes"));
+        thresholdSlider.setName("THRESHOLD");
+        thresholdSlider.setFocusable(true);
+        p1.add(thresholdSlider, gbc);
+        
+        gbc.gridwidth = 7;
         gbc.gridy ++;
 	gbc.gridx = 0;
 			
@@ -269,30 +289,7 @@ public class ToolBox extends MouseAdapter {
 			
         Component middleSeparator1 = Box.createRigidArea(new Dimension(0, 5)); 
         p2.add(middleSeparator1, gbc);
-        
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 6;		
-
-        JSlider thresholdSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 5);
-        thresholdSlider.setMajorTickSpacing(1);
-        thresholdSlider.setMinorTickSpacing(1);
-        thresholdSlider.setPaintTicks(true);
-        thresholdSlider.setPaintLabels(true);
-        thresholdSlider.setAlignmentY(Component.CENTER_ALIGNMENT);
-        thresholdSlider.setBackground(Color.white);
-        thresholdSlider.setBorder(BorderFactory.createTitledBorder("Gap between Strokes"));
-        thresholdSlider.setName("THRESHOLD");
-        thresholdSlider.setFocusable(true);
-        p2.add(thresholdSlider, gbc);
-        
-        gbc.gridwidth = 6;
-        gbc.gridy ++;
-	gbc.gridx = 0;
-			
-        Component middleSeparator2 = Box.createRigidArea(new Dimension(0, 5)); 
-        p2.add(middleSeparator2, gbc);
-	
+        	
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.gridwidth = 6;
@@ -301,12 +298,19 @@ public class ToolBox extends MouseAdapter {
 //        frequencySlider.setMajorTickSpacing(10);
 //        frequencySlider.setMinorTickSpacing(1);
 //        frequencySlider.setPaintTicks(true);
-//        frequencySlider.setPaintLabels(true);
+        frequencySlider.setPaintLabels(true);
         frequencySlider.setAlignmentY(Component.CENTER_ALIGNMENT);
         frequencySlider.setBackground(Color.white);
-        frequencySlider.setBorder(BorderFactory.createTitledBorder("Guided strokes overlap"));
+        frequencySlider.setBorder(BorderFactory.createTitledBorder("Stroke density"));
         frequencySlider.setName("FREQUENCY");
         frequencySlider.setFocusable(true);
+        
+         //Create the label table
+        Hashtable labelTable = new Hashtable();
+        labelTable.put(new Integer(100), new JLabel("Sparse"));
+        labelTable.put(new Integer(10), new JLabel("Dense"));
+        frequencySlider.setLabelTable(labelTable); 
+        
         p2.add(frequencySlider, gbc);
 		
 	gbc.gridwidth = 6;
@@ -366,9 +370,11 @@ public class ToolBox extends MouseAdapter {
         gbc.gridy ++;
 	gbc.gridx = 0;
 
-        JSlider colorSlider = new JSlider(JSlider.HORIZONTAL, -10, 10, 0);
-        colorSlider.setMajorTickSpacing(4);
-        colorSlider.setMinorTickSpacing(1);
+        
+
+        JSlider colorSlider = new JSlider(JSlider.HORIZONTAL, -100, 100, 0);
+        colorSlider.setMajorTickSpacing(100);
+//        colorSlider.setMinorTickSpacing(1);
         colorSlider.setPaintTicks(true);
         colorSlider.setPaintLabels(true);
         colorSlider.setAlignmentY(Component.CENTER_ALIGNMENT);
@@ -376,6 +382,14 @@ public class ToolBox extends MouseAdapter {
         colorSlider.setBorder(BorderFactory.createTitledBorder("Color Gradient"));
         colorSlider.setName("COLORGRADIENT");
         colorSlider.setFocusable(true);
+        
+        //Create the label table
+        Hashtable labelTable = new Hashtable();
+        labelTable.put(new Integer(-100), new JLabel("Dark"));
+        labelTable.put(new Integer(0), new JLabel("0"));
+        labelTable.put(new Integer(100), new JLabel("Bright"));
+        colorSlider.setLabelTable(labelTable);        
+        
         p3.add(colorSlider, gbc);
         
         gbc.gridwidth = 6;
@@ -438,8 +452,8 @@ public class ToolBox extends MouseAdapter {
         JSlider alphaSlider = new JSlider(JSlider.HORIZONTAL, 0, 10, 5);
         alphaSlider.setMajorTickSpacing(2);
         alphaSlider.setMinorTickSpacing(1);
-        alphaSlider.setPaintTicks(true);
-        alphaSlider.setPaintLabels(true);
+//        alphaSlider.setPaintTicks(true);
+//        alphaSlider.setPaintLabels(true);
         alphaSlider.setAlignmentY(Component.CENTER_ALIGNMENT);
         alphaSlider.setBackground(Color.white);
         alphaSlider.setBorder(BorderFactory.createTitledBorder("Image Transparency"));
