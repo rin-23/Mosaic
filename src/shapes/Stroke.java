@@ -77,6 +77,15 @@ public class Stroke implements Serializable {
     /* Add the last point when drawing a new storke */
     public void finishPoint(Point p, AVLTree pointsTree) {
         addPoint(p);
+        
+        //close the long curve if  the last point is close to the first point. 
+        if (points.size() > 10) {
+            if (Utilities.distance(p, points.get(0)) < 15) {
+                ArrayList<Point> tempPoints = Utilities.interpolate(p, points.get(0));
+                points.addAll(tempPoints);
+            }  
+        }
+        
         // Smooth points
         for (int i = 0; i < 3; i++) {
             points = Utilities.smoothPoints(points);
