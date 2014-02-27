@@ -24,7 +24,7 @@ public class Constants {
     
     public static int COLOR_GRADIENT = 0;
     
-    public static int THRESHOLD = 5;
+    public static int THRESHOLD = 2;
     public static final float ITERATION = 100;
     
     public static final int HEIGHT = 500;

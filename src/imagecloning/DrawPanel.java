@@ -613,8 +613,8 @@ public class DrawPanel extends JPanel {
                     start_select(e.getPoint());
                 }
             } else if (e.getButton() == 3) {
-                operation = Constants.BRUSH;
-                start_brush(e.getPoint());
+                operation = Constants.SELECT;
+                start_select(e.getPoint());
             } 
         }
 

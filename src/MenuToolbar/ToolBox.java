@@ -207,7 +207,7 @@ public class ToolBox extends MouseAdapter {
         gbc.gridx = 0;
         gbc.gridwidth = 7;
 
-        JSlider thresholdSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 5);
+        JSlider thresholdSlider = new JSlider(JSlider.HORIZONTAL, 1, 10, 2);
         thresholdSlider.setMajorTickSpacing(1);
         thresholdSlider.setMinorTickSpacing(1);
 //        thresholdSlider.setPaintTicks(true);
