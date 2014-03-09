@@ -28,8 +28,18 @@ public class UndoManager {
                 undoQueue.poll();
             }            
             UndoState state = new UndoState();
-            state.boundaryStrokes = (ArrayList<Stroke>) ClonePanel.boundaryStrokes.clone();
-            state.flexibleStrokes = (ArrayList<Stroke>) ClonePanel.flexibleStrokes.clone();                       
+            state.boundaryStrokes = new ArrayList<>(ClonePanel.boundaryStrokes.size());
+            for (Stroke st : ClonePanel.boundaryStrokes) {
+                Stroke newS = st.clone();
+                state.boundaryStrokes.add(newS);
+            }
+            
+            state.flexibleStrokes = new ArrayList(ClonePanel.flexibleStrokes.size());                     
+            for (Stroke st : ClonePanel.flexibleStrokes) {
+                Stroke newS = st.clone();
+                state.flexibleStrokes.add(newS);
+            }
+    
             undoQueue.add(state);            
         }
         

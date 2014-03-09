@@ -14,8 +14,10 @@ import constants.Constants;
 import java.awt.Dimension;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class Stroke implements Serializable {
+public class Stroke  {
     
     /* Stroke Global ID */
     private static int ID = 1;
@@ -187,6 +189,7 @@ public class Stroke implements Serializable {
         }
     }
     
+   
     /* Set up growth variables for strokes intended for growing */
     private void setGrowth() {   
         // Set up GrowthVectors
@@ -397,6 +400,56 @@ public class Stroke implements Serializable {
         return false;
     }
     
+//    //Check if last point of this stroke is close to the first point of the given stroke
+//    //In which case it can be extended
+//    //Only extened non-polygonal boundary strokes
+//    public boolean canBeExtendedByStroke(Stroke stroke, float distance) {
+//        if (!this.isBoundary || !stroke.isBoundary)  {
+//            return false; 
+//        }
+//        
+//        if (this.strokeType == Constants.POLYGON || 
+//            stroke.strokeType == Constants.POLYGON) 
+//        {
+//            return false; 
+//        }
+//        Point lastPoint = this.points.get(this.points.size()-1);
+//        Point firstPoint = stroke.points.get(0);
+//        return Utilities.distance(lastPoint, firstPoint) < distance;
+//    }
+//    
+//    //Connect last point of this stroke to the first point of the given stroke
+//    //In which this stroke is extended
+//    //Only extened non-polygonal boundary strokes
+//    public static Stroke combineStrokes(Stroke strokeToExtend, Stroke extensionStroke) {
+//        if (!strokeToExtend.isBoundary || !extensionStroke.isBoundary)  {
+//            return null; 
+//        }
+//        
+//        if (strokeToExtend.strokeType == Constants.POLYGON || 
+//            extensionStroke.strokeType == Constants.POLYGON) 
+//        {
+//            return null; 
+//        }
+//        
+//        Point lastPoint = strokeToExtend.points.get(strokeToExtend.points.size()-1);
+//        Point firstPoint = extensionStroke.points.get(0);
+//        
+//        ArrayList<Point> inBetweenPoints = Utilities.interpolate(lastPoint, firstPoint);
+//        int newSize = strokeToExtend.points.size() + extensionStroke.points.size() + inBetweenPoints.size();
+//        ArrayList<Point> newPoints = new ArrayList<Point>(newSize);
+//        
+//        newPoints.addAll(strokeToExtend.points);
+//        newPoints.addAll(inBetweenPoints);
+//        newPoints.addAll(extensionStroke.points);
+//        
+//        Stroke newStroke = new Stroke(newPoints, false, -1, 
+//                strokeToExtend.getPolygonColor(), strokeToExtend.strokeType);
+//       
+//        return newStroke;
+//         
+//    }
+    
     public Polygon getPolygon() {
         return this.polygon;
     }
@@ -415,5 +468,12 @@ public class Stroke implements Serializable {
     public String toString() {
         return ("Stroke: id = " + id + ", is boundary = " + isBoundary);
     }		
+    
+    @Override
+    public Stroke clone()  {
+        Stroke s = null;
+        s = new Stroke(this.points, !this.isBoundary, -1, this.getPolygonColor(), this.getStrokeType());
+        return s;
+    }
 
 }

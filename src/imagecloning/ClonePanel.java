@@ -224,7 +224,7 @@ public class ClonePanel extends JPanel {
     }
     
     public void finish_color(Point p) {
-             
+        UndoManager.saveState();
         colorStroke.finishPoint(p, null);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(colorStroke.getPoints(),
