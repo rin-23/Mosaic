@@ -297,7 +297,7 @@ public class Grow {
 			int i = expansionVectors.size() -1;
 			expandingPoint.x = centroid.x + (int) (expansionVectors.get(i).x);
 			expandingPoint.y = centroid.y + (int) (expansionVectors.get(i).y);
-			cloneStroke.finishPoint(expandingPoint, Constants.drawPointsTree);
+			cloneStroke.finishPoint(expandingPoint, Constants.drawPointsTree, -1);
 		}
                 
         // After the newPoints are re-assigned, add the points

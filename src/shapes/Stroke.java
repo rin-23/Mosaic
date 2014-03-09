@@ -76,8 +76,10 @@ public class Stroke  {
         }
     }
     
+   
     /* Add the last point when drawing a new storke */
-    public void finishPoint(Point p, AVLTree pointsTree) {
+    //if strokeType is -1 the determine type autmoatically
+    public void finishPoint(Point p, AVLTree pointsTree, int sType) {
         addPoint(p);
         
         //close the long curve if  the last point is close to the first point. 
@@ -102,7 +104,11 @@ public class Stroke  {
             }
         } 
         // Set if the stroke is a CURVE or a closed POLYGON
-        setStrokeType();
+        if (sType != -1) {
+            this.strokeType = sType;
+        } else {
+            setStrokeType(); 
+        }
         // Set polygon color and polygon for color
         // filling if the stroke is a closed POLYGON
         if (strokeType == Constants.POLYGON) {
@@ -471,8 +477,7 @@ public class Stroke  {
     
     @Override
     public Stroke clone()  {
-        Stroke s = null;
-        s = new Stroke(this.points, !this.isBoundary, -1, this.getPolygonColor(), this.getStrokeType());
+        Stroke s = new Stroke(this.points, !this.isBoundary, -1, this.getPolygonColor(), this.getStrokeType());
         return s;
     }
 

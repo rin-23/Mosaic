@@ -139,7 +139,7 @@ public class DrawPanel extends JPanel {
     }
     
     public void finish_stroke(Point p) {
-        stroke.finishPoint(p, Constants.drawPointsTree);
+        stroke.finishPoint(p, Constants.drawPointsTree, -1);
         super.repaint();
         strokes.add(stroke);
     }
@@ -183,7 +183,7 @@ public class DrawPanel extends JPanel {
     
     public void finish_select(Point p) {
         
-        selectStroke.finishPoint(p, null);
+        selectStroke.finishPoint(p, null, -1);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(selectStroke.getPoints(),
                 "Draw Panel");
@@ -304,7 +304,7 @@ public class DrawPanel extends JPanel {
     
     public void finish_color(Point p) {
         
-        colorStroke.finishPoint(p, null);
+        colorStroke.finishPoint(p, null, -1);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(colorStroke.getPoints(),
                 "Draw Panel");
@@ -389,7 +389,7 @@ public class DrawPanel extends JPanel {
     
     public void finish_erase(Point p) {
         
-        eraseStroke.finishPoint(p, null);
+        eraseStroke.finishPoint(p, null, -1);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(eraseStroke.getPoints(),
                 "Draw Panel");

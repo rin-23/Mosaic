@@ -197,7 +197,8 @@ public class ClonePanel extends JPanel {
     
     public void finish_stroke(Point p) {
         UndoManager.saveState();
-        stroke.finishPoint(p, Constants.clonePointsTree);
+        //boundary strokes are not polygons
+        stroke.finishPoint(p, Constants.clonePointsTree, Constants.CURVE);
         boundaryStrokes.add(stroke);
         ArrayList<Stroke> singleStroke = new ArrayList<Stroke>();
         singleStroke.add(stroke);
@@ -225,7 +226,7 @@ public class ClonePanel extends JPanel {
     
     public void finish_color(Point p) {
         UndoManager.saveState();
-        colorStroke.finishPoint(p, null);
+        colorStroke.finishPoint(p, null, Constants.CURVE);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(colorStroke.getPoints(),
                 "Clone Panel");
@@ -408,7 +409,7 @@ public class ClonePanel extends JPanel {
     
     public void finish_guide(Point p) {
         UndoManager.saveState();
-        guidedStroke.finishPoint(p, null);
+        guidedStroke.finishPoint(p, null, Constants.CURVE);
             
         // Save the current state before regrowth
         selectedStrokesClone = DrawPanel.selectedStrokes;
@@ -608,7 +609,7 @@ public class ClonePanel extends JPanel {
     
     public void finish_erase(Point p) {
         UndoManager.saveState();
-        eraseStroke.finishPoint(p, null);
+        eraseStroke.finishPoint(p, null, Constants.CURVE);
         
         ArrayList<Integer> IDs = Utilities.findStrokes(eraseStroke.getPoints(),
                 "Clone Panel");
