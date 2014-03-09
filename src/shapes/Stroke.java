@@ -478,6 +478,7 @@ public class Stroke  {
     @Override
     public Stroke clone()  {
         Stroke s = new Stroke(this.points, !this.isBoundary, -1, this.getPolygonColor(), this.getStrokeType());
+        s.isBoundary = this.isBoundary;
         return s;
     }
 
