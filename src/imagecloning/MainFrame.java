@@ -87,9 +87,9 @@ public class MainFrame extends JFrame {
         super.frameInit();
         super.setDefaultCloseOperation(EXIT_ON_CLOSE);
         super.setResizable(false);
-        super.setSize(1080, 575);
+        super.setSize(1080, 600);
         
-		Container contentPane = super.getContentPane();
+	Container contentPane = super.getContentPane();
         contentPane.setLayout(new GridBagLayout());
         GridBagConstraints gBC = new GridBagConstraints();
         
@@ -106,7 +106,7 @@ public class MainFrame extends JFrame {
         
         drawPanel = new DrawPanel();
         drawPanel.setBackground(Color.white);
-        drawPanel.setSize(400, 500);
+        drawPanel.setSize(400, 600);
         drawPanel.setBorder(BorderFactory.createTitledBorder("Draw Panel"));
         
         gBC.gridx = 0;
@@ -118,7 +118,7 @@ public class MainFrame extends JFrame {
         
         dropPanel = new DropPanel();
         dropPanel.setBackground(Color.white);
-        dropPanel.setSize(80, 500);
+        dropPanel.setSize(80, 600);
         dropPanel.setBorder(BorderFactory.createTitledBorder("Drop Panel"));
         
         gBC.gridx = 1;
@@ -130,7 +130,7 @@ public class MainFrame extends JFrame {
         
         clonePanel = new ClonePanel();
         clonePanel.setBackground(Color.white);
-        clonePanel.setSize(600, 500);
+        clonePanel.setSize(600, 600);
         clonePanel.setBorder(BorderFactory.createTitledBorder("Clone Panel"));
         
         gBC.gridx = 2;

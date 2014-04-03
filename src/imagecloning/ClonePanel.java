@@ -96,13 +96,13 @@ public class ClonePanel extends JPanel {
                 // Resieze the image if it's too big
                 int h = image.getHeight();
                 int w = image.getWidth();
-                if (h > 420 || w > 570) {
+                if (h > 500 || w > 600) {
                     int newH, newW;
-                    if (h / (float)420 > w / (float)570){
-                            newH = 420;
+                    if (h / (float)500> w / (float)600){
+                            newH = 500;
                             newW = Math.round(w / (float)h * newH);
                     } else {
-                            newW = 570;
+                            newW = 600;
                             newH = Math.round(h / (float)w * newW);
                     }
                     int type = image.getType() == 0? BufferedImage.TYPE_INT_ARGB : image.getType();
@@ -110,6 +110,8 @@ public class ClonePanel extends JPanel {
                     Graphics2D resizeG = resizedImage.createGraphics();
                     resizeG.drawImage(image, 0, 0, newW, newH, null);
                     image = resizedImage;
+                } else {
+                    
                 }
 
                 // Create an image that is transparent based on the original image

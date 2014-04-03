@@ -187,7 +187,7 @@ public class DropPanel extends JPanel {
                     } else if (operation == Constants.ERASE) {
                         strokeArray.set(index, null);
                         displayStrokeArray.set(index, null);
-                    }
+                    } 
                 }
                 
             }

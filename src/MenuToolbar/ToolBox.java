@@ -550,7 +550,8 @@ public class ToolBox extends MouseAdapter {
 							} catch (IOException ex) {}
 								DrawPanel.operation = Constants.DRAW;
 								ClonePanel.operation = Constants.DRAW;
-                                MainFrame.glassPanel.setVisible(false);
+                                                                DropPanel.operation = Constants.NONE;
+                                                                MainFrame.glassPanel.setVisible(false);
 								GlassPanel.operation = Constants.NONE;
 							}	
 						}
@@ -563,7 +564,7 @@ public class ToolBox extends MouseAdapter {
                                 Main.mainFrame.setCursor(Cursor.CROSSHAIR_CURSOR);
                                 f.setCursor(Cursor.CROSSHAIR_CURSOR);
 								DrawPanel.operation = Constants.SELECT;
-								DropPanel.operation = Constants.SELECT;
+								DropPanel.operation = Constants.NONE;
 								MainFrame.dropPanel.clearSquare();
 								MainFrame.dropPanel.repaint();
 							}
@@ -580,6 +581,7 @@ public class ToolBox extends MouseAdapter {
 								} catch (IOException ex) {}
 								if (DrawPanel.selectedStrokes.size() > 0) {
 									GlassPanel.operation = Constants.DRAG;
+                                                                        DropPanel.operation = Constants.NONE;
 									MainFrame.glassPanel.setVisible(true);
 								}
 							}
@@ -591,6 +593,7 @@ public class ToolBox extends MouseAdapter {
 							@Override
 							public void actionPerformed(ActionEvent ae) {
 								DrawPanel.operation = Constants.BRUSH_RECTANGLE;
+                                                                
 								MainFrame.dropPanel.clearSquare();
 								MainFrame.dropPanel.repaint();
 							}
@@ -692,6 +695,8 @@ public class ToolBox extends MouseAdapter {
                                                                         f.setCursor(Utilities.getCursor("pen"));
 								} catch (IOException ex) {}
 									ClonePanel.operation = Constants.DRAW_GUIDE;
+                                                                        DropPanel.operation = Constants.SELECT;
+                                                                        
 									MainFrame.glassPanel.setVisible(false);
 									GlassPanel.operation = Constants.NONE;
 								}
@@ -705,6 +710,7 @@ public class ToolBox extends MouseAdapter {
 								Main.mainFrame.setCursor(Cursor.DEFAULT_CURSOR);
 								f.setCursor(Cursor.DEFAULT_CURSOR);
 								DrawPanel.operation = Constants.PHOTOSHOP_MODE;
+                                                                DropPanel.operation = Constants.NONE;
 								ClonePanel.operation = Constants.PHOTOSHOP_MODE;
 								MainFrame.glassPanel.setVisible(false);
 								GlassPanel.operation = Constants.NONE;
