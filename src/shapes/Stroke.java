@@ -246,7 +246,7 @@ public class Stroke  {
         }
 
         //g2D.setClip(null);
-        
+        if (polygonColor==null)
         g2D.setColor(color);
         if (points.size() == 1) {
             g2D.draw(new Line2D.Double(points.get(0), points.get(0)));

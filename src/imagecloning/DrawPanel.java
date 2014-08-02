@@ -19,8 +19,8 @@ import shapes.Brush;
 import shapes.CPoint;
 import shapes.Stroke;
 
-public class DrawPanel extends JPanel {
-    
+public class DrawPanel extends JPanel 
+{
     public static int operation = Constants.DRAW;
     
     public static ArrayList<Stroke> strokes = null;
@@ -125,6 +125,7 @@ public class DrawPanel extends JPanel {
         }
         
     }
+    
     
     /* - START HERE - Stroke Operations */
     

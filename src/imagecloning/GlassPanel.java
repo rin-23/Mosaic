@@ -118,7 +118,7 @@ public class GlassPanel extends JComponent {
 					Grow.growStrokes(newStrokesClone, true);
             } else if (state == Constants.SOLID_TO_SOLID) {
                 for (Stroke st: newStrokesClone) {
-					Grow.growSolidStrokes(st);
+					Grow.growSolidStrokesKaran(st);
 				}
 	        } else {
 				if (!newStrokesClone.isEmpty())

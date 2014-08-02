@@ -2,10 +2,23 @@ package operations;
 
 import constants.Constants;
 import imagecloning.ClonePanel;
+import java.awt.Color;
 import java.awt.Point;
+import java.awt.geom.Point2D;
+import static java.lang.Float.NaN;
+import static java.lang.Math.abs;
+import static java.lang.Math.acos;
+import static java.lang.Math.cos;
+import static java.lang.Math.sqrt;
 import java.util.ArrayList;
+import java.util.Collections;
+import javax.vecmath.Point2f;
 import shapes.CPoint;
 import shapes.Stroke;
+import operations.PointUtils;
+import static operations.PointUtils.add;
+import static operations.PointUtils.scale;
+import static operations.PointUtils.sub;
 
 /*
  * This class contains all methods related to stroke growth.
@@ -64,8 +77,10 @@ public class Grow {
                 
                 // For each point, grow until there is a collision,
                 // and then NEVER grows from this poing on
-                for (int j = 0; j < s.getgrowthVectors().size(); j++) {
-                    if (s.getgrowthMask().get(j) == 0) {
+                for (int j = 0; j < s.getgrowthVectors().size(); j++) 
+                {
+                    if (s.getgrowthMask().get(j) == 0) 
+                    {
                         Point newP = new Point();
                         newP.x = Math.round(s.getCentroid().x
                                 + i / (float)Constants.ITERATION
@@ -112,7 +127,53 @@ public class Grow {
                 notGrown++;
             }
         }
- 
+    }
+    
+    public static boolean getGrownStrokePoints(ArrayList<Point2f> points, ArrayList<Point2f> newPoints, ArrayList<Float> weights) 
+    {
+        int numOfPoints = points.size();
+        Point2f centroid = new Point2f(0,0);
+        for (Point2f p : points) 
+        {
+            centroid = add(centroid, p);
+        }
+        centroid = scale(centroid, 1.0f/points.size());
+        
+        ArrayList<Point2f> growthVectors = new ArrayList<Point2f>();
+        for (Point2f p : points){
+            growthVectors.add(sub(p, centroid));
+        }
+        
+        ArrayList<Integer> growthMask = new ArrayList<Integer>();
+        for (int i = 0; i < points.size(); i++){
+            growthMask.add(0);
+        }
+        
+        for (int i = 1; i <= Constants.ITERATION; i++) 
+        {
+            for (int j = 0; j < numOfPoints; j++) 
+            {
+                if (growthMask.get(j) == 0) // still growing 
+                {
+                    Point2f newP = add(centroid, scale(growthVectors.get(j), i / (float)Constants.ITERATION ));
+                    
+                    ArrayList<Point> circlePoints = Utilities.getCirlePoints(new Point((int)Math.round(newP.x), 
+                                                                                       (int)Math.round(newP.y)));
+                    if (intersectGrowth(circlePoints)){
+                        growthMask.set(j, 1);
+                        weights.set(j, 1.5f);
+                    } else {
+                        newPoints.set(j, newP);
+                        weights.set(j, 1.0f);
+                    }                   
+                }
+            }   
+            float occur = (float) Collections.frequency(growthMask, 1);
+            if (occur/(float)points.size() > 0.3)
+                return true;
+        }
+        
+        return Collections.frequency(growthMask, 1) > 0.1;
     }
     
     /*
@@ -134,8 +195,7 @@ public class Grow {
      * Get a list of existing flexible strokes that the strokes in
      * newStrokes intersect and remove the existing ones from ClonePanel
      */
-    public static ArrayList<Stroke>
-            getIntersectedFlexibleStrokes(ArrayList<Stroke> newStrokes) {
+    public static ArrayList<Stroke> getIntersectedFlexibleStrokes(ArrayList<Stroke> newStrokes) {
         
         CPoint cp = null;
         CPoint newcp = null;
@@ -193,41 +253,252 @@ public class Grow {
   
     }
     
+    public static void growSolidStrokesKaran(Stroke newStroke) 
+    {
+        ArrayList<Point2f> target = new ArrayList<>(newStroke.getPoints().size());
+        ArrayList<Point2f> source = new ArrayList<>(newStroke.getPoints().size());
+        ArrayList<Float> weigths = new ArrayList<>(newStroke.getPoints().size());
+        
+        for (Point p: newStroke.getPoints()) {
+            target.add(new Point2f(0,0));
+            source.add(new Point2f((float)p.x, (float)p.y));
+            weigths.add(1.0f);
+        }
+        
+        boolean needToGrow;
+        
+        for (int i = 0; i < 50; i++) 
+        {
+            //ASSIGN HIGHER WEIGHTS TO THE POINTS THAT COLLIDED
+            needToGrow = getGrownStrokePoints(source, target, weigths); 
+            if (!needToGrow){
+                break;
+            } else { 
+                ArrayList<Point2f> transformedPoints = transformations(target, source, weigths);
+                source = transformedPoints;
+            }
+        }
+        
+        ArrayList<Point> finalSource = new ArrayList<Point>(newStroke.getPoints().size());
+        for (Point2f p: target) {
+            Point p2 = new Point((int)Math.round(p.x), (int)Math.round(p.y));
+            finalSource.add(p2);
+        }
+        
+        Stroke transPoints = new Stroke(finalSource, 
+                                        true, 
+                                        -1, 
+                                        newStroke.getPolygonColor(), 
+                                        newStroke.getStrokeType());
+        
+//        Stroke grownStroke = new Stroke(nextGrownPoints, 
+//                                true, 
+//                                -1, 
+//                                newStroke.getPolygonColor(), 
+//                                newStroke.getStrokeType());
 
-	public static void growSolidStrokes(Stroke newStroke) {
+        for (Point p : transPoints.getPoints()) {
+              Constants.clonePointsTree.probe(new CPoint(p.x, p.y, transPoints.getID(), transPoints.getIsBoundary()));
+         }
+         
+//         for (Point p : grownStroke.getPoints()) {
+//              Constants.clonePointsTree.probe(new CPoint(p.x, p.y, grownStroke.getID(), grownStroke.getIsBoundary()));
+//         }
         
-		
-		//TO DO: Assume we only have one stroke
-		Point centroid = newStroke.getCentroid();
-         //Precalculate expansion vector that takes the point from the centroid to its final position
-		ArrayList<Point> expansionVectors = newStroke.getgrowthVectors();
+//        ClonePanel.flexibleStrokes.add(grownStroke);
+        ClonePanel.flexibleStrokes.add(transPoints);
+     }
+
+    public static ArrayList<Point2f> transformations(ArrayList<Point2f> points1, ArrayList<Point2f> points2, ArrayList<Float> weighting) 
+    {
+        assert(points1.size() == points2.size());
+        assert(weighting.size() == points1.size());
+
+        int N_POINTS = points1.size();
+        float totalWeight=0.0f;
+        for (Float a : weighting) {
+            totalWeight += a; 
+        }
+
+        //1.  Translation is given by the centres of mass between the two curves
+        Point2f center1 = new Point2f(0,0);
+        Point2f center2 = new Point2f(0,0);
+
+        for (int i = 0; i < N_POINTS; i++)
+        {
+            center1 = add(center1, scale(points1.get(i), weighting.get(i)));
+            center2 = add(center2, scale(points2.get(i), weighting.get(i)));
+        }
         
-      	double moveCentroidBy[] = {0,0};
+        center1 = scale(center1, 1.0f/totalWeight);
+        center2 = scale(center2, 1.0f/totalWeight);
+        
+        float fitRotate;
+        Point2f newCenter = center1;
+        Point2f fitTranslate = sub(center1, center2);
+
+        //Set up matrix A_pq
+        double[] A_pq = new double[4];
+        for (int i=0;i<4;i++) {
+                A_pq[i]=0.0f;
+        }
+
+        for (int i=0; i < N_POINTS; i++) { //JAMES CHNAGE FROM EDGEPOINTSET TO arcLengthSamples
+                Point2f p_i = sub(points1.get(i),center1);
+                Point2f q_i = sub(points2.get(i),center2);
+
+                A_pq[0]+=p_i.x*q_i.x*weighting.get(i);
+                A_pq[1]+=p_i.x*q_i.y*weighting.get(i);
+                A_pq[2]+=p_i.y*q_i.x*weighting.get(i);
+                A_pq[3]+=p_i.y*q_i.y*weighting.get(i);
+        }
+
+        //Solve for S, where S=sqrt(A_pq^TA_pq)
+        double[] A_pqTA_pq=new double[4];
+        A_pqTA_pq[0]=A_pq[0]*A_pq[0]+A_pq[2]*A_pq[2];
+        A_pqTA_pq[1]=A_pq[0]*A_pq[1]+A_pq[2]*A_pq[3];
+        A_pqTA_pq[2]=A_pq[0]*A_pq[1]+A_pq[2]*A_pq[3];
+        A_pqTA_pq[3]=A_pq[1]*A_pq[1]+A_pq[3]*A_pq[3];
+
+        //square root can be found using eigenvalues of this 2x2 matrix
+        //Direct method to obtain eigenvalues
+        double a, b, c, d;
+        a=A_pqTA_pq[0];
+        b=A_pqTA_pq[1];
+        c=A_pqTA_pq[2];
+        d=A_pqTA_pq[3];
+
+        double r_1=(a+d)/2.0+Math.sqrt(((a+d)*(a+d))/4.0+b*c-a*d);
+        double r_2=(a+d)/2.0-Math.sqrt(((a+d)*(a+d))/4.0+b*c-a*d);
+
+        double []sqrtA=new double[4]; //sqrt(A) where A_pq^T A_pq
+        double []Sinv=new double[4];
+        double []R=new double[4];
+
+        if (r_1!=0.0f&&r_2!=0.0f) { //If matrix is not RANK DEFICIENT
+
+            double m=0;
+            double p=0;
+
+            if (r_2!=r_1) {
+                    m=(sqrt(r_2)-sqrt(r_1))/(r_2-r_1);
+                    p=(r_2*sqrt(r_1)-r_1*sqrt(r_2))/(r_2-r_1);
+            }
+            else if (r_2==r_1) {
+                    m=1/(4*r_1);
+                    p=sqrt(r_1)/2;
+            }
+
+            //sqrt(A)=m*A+p*I
+            sqrtA[0]=m*A_pqTA_pq[0]+p;
+            sqrtA[1]=m*A_pqTA_pq[1];
+            sqrtA[2]=m*A_pqTA_pq[2];
+            sqrtA[3]=m*A_pqTA_pq[3]+p;
+
+            //S^(-1) = (1/ad-bc)(d -b; -c a)
+            float determinant=(float) (1/(sqrtA[0]*sqrtA[3]-sqrtA[1]*sqrtA[2]));
+            Sinv[0]=determinant*sqrtA[3];
+            Sinv[1]=determinant*(-sqrtA[1]);
+            Sinv[2]=determinant*(-sqrtA[2]);
+            Sinv[3]=determinant*sqrtA[0];
+
+            //finally, R=A_pq*S^(-1)
+            R[0]=A_pq[0]*Sinv[0]+A_pq[1]*Sinv[2];
+            R[1]=A_pq[0]*Sinv[1]+A_pq[1]*Sinv[3];
+            R[2]=A_pq[2]*Sinv[0]+A_pq[3]*Sinv[2];
+            R[3]=A_pq[2]*Sinv[1]+A_pq[3]*Sinv[3];
+
+            if (abs(R[0]-R[3])<0.001f&&abs(R[1]-R[2])>0.001f) {
+                if (R[1]<0.0) {
+                        fitRotate=(float) (-cos(R[0])*180.0/Math.PI);
+                }
+                else {
+                        fitRotate=(float) (cos(R[0])*180.0/Math.PI);
+                }
+            }
+            else {
+                 if (R[1]<0.0) {
+                        fitRotate=(float) (acos(R[0])*180.0/Math.PI);
+                } else {
+                        fitRotate=(float) (-acos(R[0])*180.0/Math.PI);
+                }
+            }
+        }
+        else { //MATRIX A_pq is RANK DEFICIENT
+            //use arctangent of 1st tangent to approximate
+            fitRotate=(float) (-Math.atan2(points1.get(points1.size()-1).y-points1.get(0).y,
+                    points1.get(points1.size()-1).x-points1.get(0).x)*180.0f/Math.PI);
+        }
+        
+        if (!(fitRotate > 0 || -1*fitRotate > 0)) 
+        {
+            fitRotate = 0.0f;
+        }
+        
+        ArrayList<Point2f>  points3 = new ArrayList<Point2f>(points1.size());
+        for (int i = 0; i < points2.size(); i++) 
+        {
+            Point2f p = new Point2f(points2.get(i));
+            p = add(p, fitTranslate);
+            p = GetRotatedZ(sub(p, newCenter), -1*fitRotate);
+            points3.add(add(p, newCenter));
+        }
+        
+
+        System.out.println(fitRotate);
+        System.out.println(fitTranslate);
+        
+        return points3;
+    }  
+    
+    public static Point GetRotatedZ(Point p, float angle) {
+        float sinAngle = (float)Math.sin(Math.PI * angle / 180);
+        float cosAngle = (float)Math.cos(Math.PI * angle / 180);
+    
+	return new Point(Math.round(p.x * cosAngle - p.y * sinAngle), 
+                         Math.round(p.x * sinAngle + p.y * cosAngle));
+    }
+    
+    public static Point2f GetRotatedZ(Point2f p, float angle) {
+        float sinAngle = (float)Math.sin(Math.PI * angle / 180);
+        float cosAngle = (float)Math.cos(Math.PI * angle / 180);
+    
+	return new Point2f(p.x * cosAngle - p.y * sinAngle, 
+                           p.x * sinAngle + p.y * cosAngle);
+    }
+    
+    public static void growSolidStrokes(Stroke newStroke)
+    {
+        //TO DO: Assume we only have one stroke
+        Point centroid = newStroke.getCentroid();
+        //Precalculate expansion vector that takes the point from the centroid to its final position
+        ArrayList<Point> expansionVectors = newStroke.getgrowthVectors();
+
+        double moveCentroidBy[] = {0, 0};
         ArrayList<double[]> moveCentroidArray = new ArrayList<double[]>();
-		moveCentroidArray.add(moveCentroidBy);
-		
-		startTime = System.currentTimeMillis();
-		 
-		do {
-			for (double[] m : moveCentroidArray) {
-				centroid.x = (int) Math.round(centroid.x - m[0]);
-				centroid.y = (int) Math.round(centroid.y - m[1]);
-			}
-			
-			//Failed to add the stroke within 10 seconds. Abort.
-			if((System.currentTimeMillis() - startTime) > 10*1000 ) {
-				System.out.println("Could not add the stroke. Please try again");
-				return;
-			}
-			
-			moveCentroidArray = moveCentroid(centroid, expansionVectors);
-		} while(moveCentroidArray!=null); 
-		
-		createdMovedStroke(centroid, expansionVectors);
-		
-	}
-	
-		   
+        moveCentroidArray.add(moveCentroidBy);
+
+        startTime = System.currentTimeMillis();
+
+        do {
+            for (double[] m : moveCentroidArray) {
+                centroid.x = (int) Math.round(centroid.x - m[0]);
+                centroid.y = (int) Math.round(centroid.y - m[1]);
+            }
+
+            //Failed to add the stroke within 10 seconds. Abort.
+            if ((System.currentTimeMillis() - startTime) > 10 * 1000) {
+                System.out.println("Could not add the stroke. Please try again");
+                return;
+            }
+
+            moveCentroidArray = moveCentroid(centroid, expansionVectors);
+        } while (moveCentroidArray != null);
+
+        createdMovedStroke(centroid, expansionVectors);
+    }
+
+    
 	private static ArrayList<double[]> moveCentroid(Point centroid, ArrayList<Point> expansionVectors){
 		
 		ArrayList<double[]> moveCentroidArray = new ArrayList <double[]>();
@@ -276,6 +547,7 @@ public class Grow {
 		
 		return null;
 	}
+        
 	
 	private static void createdMovedStroke(Point centroid, ArrayList<Point> expansionVectors){
 		

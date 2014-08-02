@@ -23,8 +23,8 @@ import shapes.Brush;
 import shapes.CPoint;
 import shapes.Stroke;
 
-public class ClonePanel extends JPanel {
-    
+public class ClonePanel extends JPanel 
+{
     public static int operation = Constants.DRAW;
     public static Stroke stroke = null;
     
@@ -60,6 +60,8 @@ public class ClonePanel extends JPanel {
    
     public boolean useImage = false;	
     
+    private Color bgColor = Color.white;
+    
     public static int state;
     
     public ClonePanel () {
@@ -83,7 +85,7 @@ public class ClonePanel extends JPanel {
         
         /* Paint background, strokes, and brushes from scratch */
         Graphics2D g2D = (Graphics2D) g;
-        g2D.setColor(Color.white);
+        g2D.setColor(bgColor);
         g2D.fillRect(0, 0, super.getWidth(), super.getHeight());
         
         if (GlassPanel.stage == Constants.STAGE_DRAG || 
@@ -238,8 +240,8 @@ public class ClonePanel extends JPanel {
         allStrokes.addAll(boundaryStrokes);
         allStrokes.addAll(flexibleStrokes);
             
-        
-              
+        boolean setBackgroundColor = true;
+            
         if (IDs.isEmpty()) {
             IDs = Utilities.findStroke(p, "Clone Panel");
             outerloop:           
@@ -248,6 +250,7 @@ public class ClonePanel extends JPanel {
                     if (s.getID() == IDs.get(i)
                             && s.getStrokeType() == Constants.POLYGON) {
                         s.setPolygonColor(newColor);
+                        setBackgroundColor = false;
                         break outerloop;
                     }
                 }
@@ -261,6 +264,8 @@ public class ClonePanel extends JPanel {
                     }
                 }
             }     
+            
+            if (strokesToColor.size()>0) setBackgroundColor = false;
             
             int R = newColor.getRed();
             int G = newColor.getGreen();
@@ -299,6 +304,9 @@ public class ClonePanel extends JPanel {
             }
         }
 
+        if (setBackgroundColor) {
+            bgColor = newColor;
+        }
         colorStroke = null;
         super.repaint();
     }
@@ -383,7 +391,7 @@ public class ClonePanel extends JPanel {
 				Grow.growStrokes(newStrokes, false);
         } else if (state == Constants.SOLID_TO_SOLID) {
             for (Stroke st : newStrokes) {
-				Grow.growSolidStrokes(st);
+				Grow.growSolidStrokesKaran(st);
 			}
 	
         }
